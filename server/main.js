@@ -5,10 +5,12 @@ const app = express();
 const port = 3000;
 const pokemonApi = "https://pokeapi.co/api/v2/pokemon";
 
+// Home
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+// List Pokemon
 app.get("/pokemon/list", async (req, res) => {
   const limit = req.query.limit ?? 10;
   const offset = req.query.offset ?? 0;
@@ -22,6 +24,25 @@ app.get("/pokemon/list", async (req, res) => {
       statusText: response.statusText,
       totalCount: response.data.count,
       data: response.data.results,
+    });
+  } catch (error) {
+    res.status(error.response?.status ?? 500).json({
+      success: false,
+      message: error.response?.data?.message ?? "An error occurred",
+    });
+  }
+});
+
+// Get Pokemon
+app.get("/pokemon/:pokemonName", async (req, res) => {
+  const { pokemonName } = req.params;
+  try {
+    const response = await axios.get(`${pokemonApi}/${pokemonName}`);
+    res.json({
+      success: true,
+      status: response.status,
+      statusText: response.statusText,
+      data: response.data,
     });
   } catch (error) {
     res.status(error.response?.status ?? 500).json({
